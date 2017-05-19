@@ -215,7 +215,7 @@ function app:hit-count($node as node()*, $model as map(*), $key as xs:string) {
             count($value)
 };
 
-declare 
+declare
     %templates:wrap
 function app:checkbox($node as node(), $model as map(*), $target-texts as xs:string*) {
     let $id := $model("work")/@xml:id/string()
@@ -240,8 +240,8 @@ declare %public function app:work-author($work as element(tei:TEI)?) {
     let $work-authors := if ($work-authors) then $work-authors else $work/tei:teiHeader/tei:fileDesc/tei:titleStmt/tei:author/text()
     let $work-authors := if ($work-commentators) then $work-commentators else $work-authors
     let $work-authors := if ($work-authors) then tei-to-html:serialize-list($work-authors) else ()
-    return 
-        $work-authors    
+    return
+        $work-authors
 };
 
 declare function app:work-author($node as node(), $model as map(*)) {
@@ -251,8 +251,8 @@ declare function app:work-author($node as node(), $model as map(*)) {
     let $work-authors := if ($work-authors) then $work-authors else $work/tei:teiHeader/tei:fileDesc/tei:titleStmt/tei:author/text()
     let $work-authors := if ($work-commentators) then $work-commentators else $work-authors
     let $work-authors := if ($work-authors) then tei-to-html:serialize-list($work-authors) else ()
-    return 
-        $work-authors    
+    return
+        $work-authors
 };
 
 declare function app:work-lang($node as node(), $model as map(*)) {
@@ -264,9 +264,9 @@ declare function app:work-lang($node as node(), $model as map(*)) {
 declare function app:work-lang($work as element(tei:TEI)) {
     let $script := $work//tei:text/@xml:lang
     let $script := if ($script eq 'sa-Latn') then 'IAST' else 'Devanagari'
-    let $auto-conversion := $work//tei:revisionDesc/tei:change[@type eq 'conversion'][@subtype eq 'automatic'] 
-    return 
-        concat($script, if ($auto-conversion) then ' (automatically converted)' else '')  
+    let $auto-conversion := $work//tei:revisionDesc/tei:change[@type eq 'conversion'][@subtype eq 'automatic']
+    return
+        concat($script, if ($auto-conversion) then ' (automatically converted)' else '')
 };
 
 
@@ -865,7 +865,7 @@ declare function app:expand-hits($divs as element()*, $index as xs:string) {
                 session:get-attribute("apps.sarit.lucene-query")
     for $div in $divs
     for $query in distinct-values($queries)
-    let $result := 
+    let $result :=
         switch ($index)
             case "ngram" return
                 $div[ngram:wildcard-contains(., $query)]
@@ -966,4 +966,20 @@ declare %private function app:get-current($div as element()?) {
                 pages:get-previous($div/..)
             else
                 $div
+};
+
+declare
+    %templates:wrap
+function app:error($node as node(), $model as map(*)) {
+    let $input := request:get-attribute("org.exist.forward.error")
+    return
+        <pre class="error">
+        {
+            try {
+                parse-xml($input)//message/string()
+            } catch * {
+                $input
+            }
+        }
+        </pre>
 };
